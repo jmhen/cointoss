@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>blockchain</title>
+        <meta charset="utf-8" />
+    		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}" />
+        <script src="{{ url_for('static', filename='assets/js/jquery.min.js') }}"></script>
+  			<script src="{{ url_for('static', filename='assets/js/skel.min.js') }}"></script>
+  			<script src="{{ url_for('static', filename='assets/js/util.js') }}"></script>
+  			<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+
+        <script lang="javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script lang="javascript">
+            var contract;
+
+            $(document).ready(function() {
+                if (typeof web3 !== 'undefined') {
+			web3 = new Web3(web3.currentProvider);
+			ethereum.enable();
+			console.log(web3);
+	
+                    var sc_address = "{{contractAddress}}";
+                    var contractABI = web3.eth.contract(JSON.parse('{{contractABI | safe}}'));
+                    var contractInstance = contractABI.at(sc_address);
+			console.log(contractInstance);
+                    contract = contractInstance;
+                    $("a#getWinner").click(function(){
+			console.log("call Winner");
+			console.log(web3.eth.accounts);
+                        contractInstance.getWinner(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+				console.log("getting result");
+                              $("span#winner").text(result);
+                          }
+                        });
+                    });
+                    $("a#guess").click(function(){
+			var newGuess = $("input#guess").val();
+			console.log("call Guess");
+			var boolGuess = (newGuess==1);
+			console.log(boolGuess);
+                        contractInstance.guessOutcome(boolGuess, {from:web3.eth.accounts[0]}, function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          }else{
+				console.log("Guess Submitted");}
+                        });
+                    });
+                    $("a#toss").click(function(){
+                        var newCommit = $("input#commit").val();
+                        contractInstance.tossCommit(newCommit, {from:web3.eth.accounts[0]}, function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          }else{
+				console.log("Toss Commited")
+			}
+                        });
+                    });
+                }
+                else {
+                    alert("Please, install Metamask!");
+                }
+            });
+        </script>
+    </head>
+    <body class="subpage">
+      <!-- Header -->
+  			<header id="header">
+  				<div class="inner">
+  					<a href="index.html" class="logo">Game</a>
+  					<nav id="nav">
+  						<a href="index.html">Home</a>
+  						<a href="#">Admin</a>
+  						<a href="#">Customer</a>
+  					</nav>
+  					<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+  				</div>
+  			</header>
+
+        <section id="three" class="wrapper">
+  				<div class="inner">
+  					<header class="align-center">
+  						<h2>Coin-Tossing Game</h2>
+  					</header>
+            <div class="flex flex-2">
+              <article>
+  				            <header>
+  							
+  							</header>
+							<p>Commit: <input type="text" id="commit" value="you should submit a hash" /></p>
+  							<footer>
+  								<a href="#" id="toss" class="button special">Toss</a>
+  							</footer><br/>
+                            				<p>My Guess: <input type="text" id="guess" value="0 for down, 1 for up" /></p>
+                            <footer>
+  								<a href="#" id="guess" class="button special">Submit Guess</a>
+  							</footer><br/>
+                            <br />
+                            <header>
+  								<h3>Winner</h3>
+  							</header>
+  							<p><span id="winner">None</span><p>
+  							<footer>
+  								<a href="#" id="getWinner" class="button special">Get Winner</a>
+  							</footer>
+  						</article>
+            </div>
+  				</div>
+  			</section>
+
+
+    </body>
+</html>
